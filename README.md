@@ -11,6 +11,7 @@
 2. нажмите правой кнопкой мыши по исполняемому файлу и выберите открыть
 <img width="1440" height="900" alt="Снимок экрана 2026-07-21 в 18 24 34" src="https://github.com/user-attachments/assets/6a42affd-6c95-4473-9e3c-0b37dc3793b6" />
 3. Finder покажет окно с предупреждением нажмите открыть
-<img width="1440" height="900" alt="Снимок экрана 2026-07-21 в 18 25 07" src="https://github.com/user-attachments/assets/4b74837e-d3d1-48b1-80b5-858470e4f919" />
+<img width="1440" height="900" alt="Снимок экрана 2026-07-21 в 18 30 56" src="https://github.com/user-attachments/assets/024165a0-3404-4b13-97c0-8e6ace351afd" />
+
 программа откроется.
 #
