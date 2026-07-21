@@ -9,14 +9,12 @@ import java.util.concurrent.TimeUnit;
 
 public class HackMyMacOS {
 
-    // Переменные для спаммеров во вкладке "Веселье"
     private static ScheduledExecutorService notificationScheduler;
     private static boolean isSpammingNotifications = false;
 
     private static ScheduledExecutorService speechScheduler;
     private static boolean isSpammingSpeech = false;
 
-    // Компоненты для отображения реальных логов macOS
     private static JTextArea logArea;
     private static Process logProcess;
     private static boolean isReadingLogs = false;
@@ -33,20 +31,17 @@ public class HackMyMacOS {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Добавляем вкладки в новом правильном порядке
         tabbedPane.addTab("Основные", createMainTab());
         tabbedPane.addTab("Веселье и тесты", createFunTab());
-        tabbedPane.addTab("Логи macOS", createLogsTab()); // Новое место для логов
+        tabbedPane.addTab("Логи macOS", createLogsTab());
         tabbedPane.addTab("About", createAboutTab());
 
         frame.add(tabbedPane);
         frame.setVisible(true);
 
-        // Автоматически запускаем чтение логов macOS при старте
         startStreamingMacLogs();
     }
 
-    // --- ВКЛАДКА 1: ОСНОВНЫЕ (Переключение тем и общие настройки) ---
     private static JPanel createMainTab() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -60,7 +55,6 @@ public class HackMyMacOS {
 
         Dimension btnSize = new Dimension(340, 40);
 
-        // Кнопка смены темы теперь переехала сюда
         JButton themeButton = new JButton("Переключить тему (Светлая/Темная)");
         themeButton.setFont(new Font("Arial", Font.PLAIN, 13));
         themeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -71,7 +65,6 @@ public class HackMyMacOS {
         });
         panel.add(themeButton);
         
-        // Место для будущих основных функций
         panel.add(Box.createRigidArea(new Dimension(0, 15)));
         JLabel futureLabel = new JLabel("Здесь появятся новые системные утилиты...");
         futureLabel.setForeground(Color.GRAY);
@@ -81,7 +74,6 @@ public class HackMyMacOS {
         return panel;
     }
 
-    // --- ВКЛАДКА 2: ВЕСЕЛЬЕ И ТЕСТЫ (Только спаммеры) ---
     private static JPanel createFunTab() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -89,7 +81,7 @@ public class HackMyMacOS {
 
         Dimension btnSize = new Dimension(340, 35);
 
-        // Спам уведомлениями
+
         JButton spamButton = new JButton("Включить спам-уведомления");
         spamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         spamButton.setMaximumSize(btnSize);
@@ -116,7 +108,6 @@ public class HackMyMacOS {
         panel.add(spamButton);
         panel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Голосовой спам
         JLabel ttsLabel = new JLabel("Текст для голосового спама (раз в 2 сек):");
         ttsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(ttsLabel);
@@ -159,7 +150,6 @@ public class HackMyMacOS {
         return panel;
     }
 
-    // --- ВКЛАДКА 3: ЛОГИ macOS (Выделенная вкладка перед About) ---
     private static JPanel createLogsTab() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -184,14 +174,12 @@ public class HackMyMacOS {
         return panel;
     }
 
-    // Фоновый поток для постоянного чтения консольного вывода команды 'log stream'
     private static void startStreamingMacLogs() {
         if (isReadingLogs) return;
         isReadingLogs = true;
 
         new Thread(() -> {
             try {
-                // Оставляем только важные системные предупреждения и ошибки
                 String[] command = {"log", "stream"};
                 logProcess = new ProcessBuilder(command).start();
 
@@ -213,7 +201,6 @@ public class HackMyMacOS {
         }).start();
     }
 
-    // --- ВКЛАДКА 4: ABOUT ---
     private static JPanel createAboutTab() {
         JPanel panel = new JPanel(new GridBagLayout());
         JLabel label = new JLabel("<html><center><h2>Hack my macOS 1</h2><p>Версия 1.0</p><br><p>Copyright (c) 2026 TimoNiki </p></center></html>");
