@@ -8,13 +8,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class HackMyMacOS {
-
     private static ScheduledExecutorService notificationScheduler;
     private static boolean isSpammingNotifications = false;
-
     private static ScheduledExecutorService speechScheduler;
     private static boolean isSpammingSpeech = false;
-
     private static JTextArea logArea;
     private static Process logProcess;
     private static boolean isReadingLogs = false;
@@ -26,62 +23,46 @@ public class HackMyMacOS {
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Hack my macOS 1");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(550, 450);
+        frame.setSize(550, 480);
         frame.setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
         tabbedPane.addTab("Основные", createMainTab());
-        tabbedPane.addTab("Веселье и тесты", createFunTab());
+        tabbedPane.addTab("Звук", createSoundTab());
         tabbedPane.addTab("Логи macOS", createLogsTab());
+        startStreamingMacLogs();
         tabbedPane.addTab("About", createAboutTab());
 
         frame.add(tabbedPane);
         frame.setVisible(true);
-
-        startStreamingMacLogs();
     }
 
     private static JPanel createMainTab() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
-
-        JLabel titleLabel = new JLabel("Основные настройки системы");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(titleLabel);
-        panel.add(Box.createRigidArea(new Dimension(0, 30)));
-
-        Dimension btnSize = new Dimension(340, 40);
-
-        JButton themeButton = new JButton("Переключить тему (Светлая/Темная)");
-        themeButton.setFont(new Font("Arial", Font.PLAIN, 13));
-        themeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        themeButton.setMaximumSize(btnSize);
-        themeButton.addActionListener(e -> {
-            String toggleThemeScript = "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode";
-            runAppleScript(toggleThemeScript);
-        });
-        panel.add(themeButton);
-        
-        panel.add(Box.createRigidArea(new Dimension(0, 15)));
-        JLabel futureLabel = new JLabel("Здесь появятся новые системные утилиты...");
-        futureLabel.setForeground(Color.GRAY);
-        futureLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(futureLabel);
-
-        return panel;
-    }
-
-    private static JPanel createFunTab() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
         Dimension btnSize = new Dimension(340, 35);
 
+        JButton themeButton = new JButton("Переключить тему (Светлая/Темная)");
+        themeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themeButton.setMaximumSize(btnSize);
+        themeButton.addActionListener(e -> {
+            runAppleScript("tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode");
+        });
+        panel.add(themeButton);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
 
+        JLabel customLabel = new JLabel("Текст для одиночного уведомления:");
+        customLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(customLabel);
+
+        JTextField customField = new JTextField("Привет от Hack my macOS!");
+        customField.setMaximumSize(new Dimension(340, 30));
+        customField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(customField);
+        panel.add(Box.createRigidArea(new Dimension(0, 5)));
         JButton spamButton = new JButton("Включить спам-уведомления");
         spamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         spamButton.setMaximumSize(btnSize);
@@ -108,6 +89,37 @@ public class HackMyMacOS {
         panel.add(spamButton);
         panel.add(Box.createRigidArea(new Dimension(0, 20)));
 
+        JButton customButton = new JButton("Прислать одиночное уведомление");
+        customButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        customButton.setMaximumSize(btnSize);
+        customButton.addActionListener(e -> {
+            String userText = customField.getText().trim();
+            if (userText.isEmpty()) userText = "Пустая строка";
+            runAppleScript(String.format("display notification \"%s\" with title \"Уведомление\"", userText));
+        });
+        panel.add(customButton);
+
+        return panel;
+    }
+
+    private static void runAppleScript(String script) {
+        executeCommand(new String[]{"osascript", "-e", script});
+    }
+
+    private static void executeCommand(String[] command) {
+        ProcessBuilder pb = new ProcessBuilder(command);
+        try {
+            pb.start();
+        } catch (IOException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+    }
+    private static JPanel createSoundTab() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+
+        Dimension btnSize = new Dimension(340, 35);
         JLabel ttsLabel = new JLabel("Текст для голосового спама (раз в 2 сек):");
         ttsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(ttsLabel);
@@ -130,11 +142,13 @@ public class HackMyMacOS {
                 ttsField.setEnabled(false);
 
                 String textToSay = ttsField.getText().trim();
+                if (textToSay.isEmpty()) textToSay = "Внимание";
                 
+                final String finalSpeechText = textToSay;
                 speechScheduler = Executors.newSingleThreadScheduledExecutor();
                 speechScheduler.scheduleAtFixedRate(() -> {
-                    executeCommand(new String[]{"say", textToSay});
-                }, 0, 2, TimeUnit.SECONDS);
+                    executeCommand(new String[]{"say", finalSpeechText});
+                }, 0, 1, TimeUnit.SECONDS);
             } else {
                 isSpammingSpeech = false;
                 ttsButton.setText("Включить голосовой спам");
@@ -149,12 +163,11 @@ public class HackMyMacOS {
 
         return panel;
     }
-
     private static JPanel createLogsTab() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel titleLabel = new JLabel("Живой поток системных логов macOS (Ошибки и Предупреждения):");
+        JLabel titleLabel = new JLabel("Полный живой поток системных логов macOS:");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 12));
         panel.add(titleLabel, BorderLayout.NORTH);
 
@@ -173,7 +186,6 @@ public class HackMyMacOS {
 
         return panel;
     }
-
     private static void startStreamingMacLogs() {
         if (isReadingLogs) return;
         isReadingLogs = true;
@@ -200,25 +212,11 @@ public class HackMyMacOS {
             }
         }).start();
     }
-
     private static JPanel createAboutTab() {
         JPanel panel = new JPanel(new GridBagLayout());
-        JLabel label = new JLabel("<html><center><h2>Hack my macOS 1</h2><p>Версия 1.0</p><br><p>Copyright (c) 2026 TimoNiki </p></center></html>");
+        JLabel label = new JLabel("<html><center><h2>Hack my macOS 1</h2><p>Версия 1.0</p><br><p>Copyright (c) 2026 TimoNiki</p></center></html>");
         label.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(label);
         return panel;
-    }
-
-    private static void runAppleScript(String script) {
-        executeCommand(new String[]{"osascript", "-e", script});
-    }
-
-    private static void executeCommand(String[] command) {
-        ProcessBuilder pb = new ProcessBuilder(command);
-        try {
-            pb.start();
-        } catch (IOException e) {
-            System.err.println("Ошибка выполнения: " + e.getMessage());
-        }
     }
 }
