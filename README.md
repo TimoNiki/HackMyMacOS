@@ -1,4 +1,5 @@
 # HackMyMacOS
+[![Github Downloads](https://img.shields.io/github/downloads/TimoNiki/HackMyMacOS/total)](https://github.com/TimoNiki/HackMyMacOS)
 Программа создана для того чтобы просмотреть/изменить настройки macOS которые тяжело найти в настройках.
 и чтобы долго не искать появилась программа от меня которая называется HackMyMacOS.
 
